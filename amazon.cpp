@@ -102,16 +102,23 @@ int main(int argc, char* argv[])
             }
             else if (cmd == "ADD") {
             string username;
-            int hit_result_index;
-            if (ss >> username >> hit_result_index) {
-                string lowercaseName = convToLower(username); // Correct variable
+            if (ss >> username) {
+                string lowercaseName = convToLower(username);
                 User* user = ds.findUserByName(lowercaseName);
-                if (user && hit_result_index >= 0 && static_cast<int>(hits.size())) {
-                    user->addItemToCart(hits[hit_result_index]);
-                    cout << "Product added to cart" << endl;
-                } else {
-                    cout << "Invalid username or product index" << endl;
+                string itemproduct;
+                if(!(ss>>itemproduct))
+                {
+                    cout<<"Invalid request"<<endl;
                 }
+                unsigned int numitem = stoi(itemproduct);
+                if(numitem<=hits.size() && user !=nullptr)
+                {
+                    ds.addToCart(username, numitem,hits);
+                }else{
+                    cout<<"Invalid request"<<endl;
+                }
+            }else{
+              cout<<"Invalid request"<<endl;
             }
         }
             else if (cmd == "VIEWCART") {
@@ -119,8 +126,8 @@ int main(int argc, char* argv[])
             if (ss >> username) {
                 string lowercaseName = convToLower(username);
                 User* user = ds.findUserByName(lowercaseName);
-                if (user) {
-                    user->viewCart();
+                if (user!=nullptr) {
+                    ds.viewCart(username);
                 } else {
                     cout << "Invalid username" << endl;
                 }
@@ -131,8 +138,8 @@ int main(int argc, char* argv[])
             if (ss >> username) {
                 string lowercaseName = convToLower(username);
                 User* user = ds.findUserByName(lowercaseName);
-                if (user) {
-                    user->buyCart();
+                if (user!=nullptr) {
+                    ds.buyCart(username);
                 } else {
                     cout << "Invalid username" << endl;
                 }

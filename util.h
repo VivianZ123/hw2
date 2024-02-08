@@ -13,19 +13,40 @@
  *  in this header file (since they are templates).
  *  Both functions should run in time O(n*log(n)) and not O(n^2)
  */
-template<typename T>
-std::set<T> setIntersection(const std::set<T>& s1, const std::set<T>& s2)
+template <typename T>
+std::set<T> setIntersection(std::set<T>& s1, std::set<T>& s2)
 {
-    std::set<T> intersect;
-    std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(intersect, intersect.begin()));
-    return intersect;
+	std::set<T> inter_set;
+	typename std::set<T>::iterator it = s1.begin();
+	while(it != s1.end())
+	{
+		if(s2.find(*it) != s2.end())
+		{
+			//O(logn)
+			inter_set.insert(*it);
+		}
+		++it;
+	}
+	return inter_set;
+
 }
-template<typename T>
-std::set<T> setUnion(const std::set<T>& s1, const std::set<T>& s2)
+
+template <typename T>
+std::set<T> setUnion(std::set<T>& s1, std::set<T>& s2)
 {
-    std::set<T> unionSet;
-    std::set_union(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(unionSet, unionSet.begin()));
-    return unionSet;
+	std::set<T> union_set = s2;
+	typename std::set<T>::iterator it = s1.begin();
+	while(it != s1.end())
+	{
+		if(union_set.end() == union_set.find(*it))
+		{
+			//O(logn)
+			union_set.insert(*it);
+		}
+		++it;
+	}
+	return union_set;
+
 }
 
 /***********************************************/
@@ -45,4 +66,5 @@ std::string &rtrim(std::string &s) ;
 
 // Removes leading and trailing whitespace
 std::string &trim(std::string &s) ;
-#endif
+
+#endif // UTIL_H

@@ -1,7 +1,7 @@
 #include <sstream>
 #include <iomanip>
 #include "product.h"
-#include "util.cpp"
+#include "util.h"
 
 using namespace std;
 

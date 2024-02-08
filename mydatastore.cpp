@@ -1,7 +1,7 @@
 #include "mydatastore.h"
-#include "util.h"
+//#include "util.h"
 #include <vector>
-
+using namespace std;
 MyDataStore::MyDataStore() {
 }
 
@@ -45,33 +45,46 @@ void MyDataStore::addUser(User* u) {
 }
 
 std::vector<Product*> MyDataStore::search(std::vector<std::string>& terms, int type) {
-    std::set<Product*> results;
-    if (terms.empty()) {
-        return std::vector<Product*>(results.begin(), results.end());
-    }
-    if (type == 0) {
-        auto iter = terms.begin();
-        if (products.find(*iter) != products.end()) {
-            results = products[*iter];
-        }
-        ++iter;
-        for (; iter != terms.end(); ++iter) {
-            if (products.find(*iter) != products.end()) {
-                results = setIntersection(results, products[*iter]);
-            } else {
-                results.clear();
-                break;
-            }
-        }
-    } else if (type == 1) {
-        for (const auto& term : terms) {
-            if (products.find(term) != products.end()) {
-                results = setUnion(results, products[term]);
-            }
-        }
-    }
+    set<Product*> set_sol;
+    vector<Product*> results;
 
-    return std::vector<Product*>(results.begin(), results.end());
+    if (terms.empty())
+    {
+        return results;
+    } 
+    
+    if (type == 0)
+    {
+        set<Product*> set_and;
+        for (unsigned int i = 0; i < terms.size(); i++)
+        {
+
+            if(set_and.empty())
+            {
+                set_and = product_keyword[terms[i]];
+            }
+            
+            set_and = setIntersection(product_keyword[terms[i]],set_and);   
+        }
+        set_sol = set_and;
+    }
+    else if (type == 1)
+    {
+        set<Product*> set_or;
+
+        for (unsigned int i = 0; i < terms.size(); i++)
+        {
+            set_or = setUnion(product_keyword[terms[i]],set_or);
+        }
+        set_sol = set_or;
+    }
+    set<Product*>::iterator it = set_sol.begin();
+    while(it != set_sol.end())
+    {
+        results.push_back(*it);
+        ++it;
+    }
+    return results;
 }
 
 
@@ -94,8 +107,15 @@ void MyDataStore::dump(std::ostream& ofile)
     }
 
     ofile << "</users>"<<endl;
+}
 
-    vector<Product*>::iterator rt = products.begin();
+User* MyDataStore::findUserByName(const std::string& username) {
+    for(unsigned int i = 0; i < users.size(); i++) {
+        if(users[i]->getName() == username) {
+            return users[i];
+        }
+    }
+    return nullptr; 
 }
 
 void MyDataStore::addToCart(std::string username, 
@@ -125,8 +145,49 @@ void MyDataStore::viewCart(std::string username)
         vector<Product*> items = carts.find(username)->second;
         for(unsigned int i = 0; i < items.size(); i++) 
         {
-            cout << "Item " << i+1 << endl
-            items[i]->displayString() << endl<<endl;
+            cout << "Item " << i+1 << endl;
+            cout << items[i]->displayString() << endl;
+        }
+    }
+}
+void MyDataStore::buyCart(std::string username)
+{
+   
+    map<string, vector<Product*> >::iterator it = carts.find(username);
+    User* user; 
+
+    if(carts[username].size() <= 0) 
+    {
+        return;
+    }   
+    for(unsigned int i = 0; i < users.size(); i++) 
+    {
+        if(users[i]->getName() == username)
+        {
+            user = users[i];
+        }
+    }
+    vector<Product*> &useritems = it->second; 
+    vector<Product*>::iterator item = useritems.begin();
+    unsigned int i = 0;
+
+    while( i < useritems.size() ) 
+    {
+        double price = useritems[i]->getPrice();
+        if(user->getBalance() >= price && (useritems[i]->getQty() != 0)) 
+        { 
+            useritems[i]->subtractQty(1);
+            user->deductAmount(price);
+            for(unsigned int k =0;k<i;k++)
+            {
+                item++;
+            }
+            useritems.erase(item); 
+             
+        } 
+        else
+        {
+            i++;
         }
     }
 }
