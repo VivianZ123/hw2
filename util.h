@@ -4,29 +4,28 @@
 #include <string>
 #include <iostream>
 #include <set>
+#include <iterator>
+#include <vector>
+#include <algorithm>
 
 
 /** Complete the setIntersection and setUnion functions below
  *  in this header file (since they are templates).
  *  Both functions should run in time O(n*log(n)) and not O(n^2)
  */
-template <typename T>
-std::set<T> setIntersection(std::set<T>& s1, std::set<T>& s2)
+template<typename T>
+std::set<T> setIntersection(const std::set<T>& s1, const std::set<T>& s2)
 {
-
-
-
-
-
+    std::set<T> intersect;
+    std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(intersect, intersect.begin()));
+    return intersect;
 }
-template <typename T>
-std::set<T> setUnion(std::set<T>& s1, std::set<T>& s2)
+template<typename T>
+std::set<T> setUnion(const std::set<T>& s1, const std::set<T>& s2)
 {
-
-
-
-
-
+    std::set<T> unionSet;
+    std::set_union(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(unionSet, unionSet.begin()));
+    return unionSet;
 }
 
 /***********************************************/
